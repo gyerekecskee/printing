@@ -193,6 +193,10 @@ textarea {
   opacity: 0.5;
 }
 
+#hot-topics {
+  background-color: red;
+}
+
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.

@@ -1,18 +1,18 @@
 import {Layout} from "./layout.js";
 
 export class Solver {
-  maxPoints;
   maxLayout;
-  constructor(newsItems, numOfPages) {
+  constructor(newsItems, numOfPages, hotTopic) {
     this.newsItems = newsItems;
     this.maxPoints = 0;
     this.numOfPages = numOfPages;
+    this.hotTopic = hotTopic;
   }
 
   solve() {
     const permutations = this.getPermutations(this.newsItems, this.numOfPages * 3);
     for (let i = 0; i < permutations.length; i++) {
-      const layout = new Layout(permutations[i]);
+      const layout = new Layout(permutations[i], this.hotTopic);
       const points = layout.points;
       if (points > this.maxPoints) {
         this.maxPoints = points;
