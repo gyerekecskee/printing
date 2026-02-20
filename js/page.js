@@ -13,15 +13,15 @@ export class Page {
   }
 
   getPoints() {
-    let mPoints = this.mul * 2500 * this.mSlot.tags.length;
+    let mPoints = this.mul * this.mSlot.rawPoints();
     if (this.mSlot.tags.includes(this.hotTopic)) {
       mPoints += 2500;
     }
-    let sPoints = 2500 * this.sSlot.tags.length;
+    let sPoints = this.sSlot.rawPoints();
     if (this.sSlot.tags.includes(this.hotTopic)) {
       sPoints += 2500;
     }
-    let tPoints = 2500 * this.tSlot.tags.length;
+    let tPoints = this.tSlot.rawPoints();
     if (this.tSlot.tags.includes(this.hotTopic)) {
       tPoints += 2500;
     }
@@ -30,14 +30,14 @@ export class Page {
     return points;
 
     function countCombos(...lists) {
-      const counts = {};
+      const counts = new Map();
       for (const list of lists) {
         const seen = new Set(list); // avoid double-counting within same list
-        for (const num of seen) {
-          counts[num] = (counts[num] || 0) + 1;
+        for (const tag of seen) {
+          counts.set(tag, (counts.get(tag) || 0) + 1);
         }
       }
-      return Object.values(counts)
+      return [...counts.values()]
         .filter(c => c > 1)
         .reduce((sum, c) => sum + (c - 1), 0);
     }

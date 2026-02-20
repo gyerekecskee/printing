@@ -3,11 +3,17 @@ export class News {
     this.tags = tags
   }
 
-  addTag(id) {
-    if (!this.tags.includes(id)) this.tags.push(id);
+  addTag(tag) {
+    if (!this.tags.includes(tag)) this.tags.push(tag);
   }
 
-  removeTag(id) {
-    this.tags = this.tags.filter(t => t !== id);
+  removeTag(tag) {
+    this.tags = this.tags.filter(t => t !== tag);
+  }
+
+  rawPoints() {
+    let points = 0;
+    this.tags.forEach(tag => points += tag.worth);
+    return points;
   }
 }

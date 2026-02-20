@@ -1,6 +1,7 @@
 import {Solver} from "./solver.js";
 import {Page} from "./page.js";
 import {News} from "./news.js";
+import {Tag} from "./Tag.js";
 
 const newsContainer = document.getElementById("newsBoxes");
 const pagesContainer = document.getElementById("pages-container");
@@ -9,20 +10,23 @@ document.getElementById("solve").addEventListener("click", solve);
 document.getElementById("addNews").addEventListener("click", addNews);
 document.getElementById("add-page").addEventListener("click", addPage);
 
-const Tag = Object.freeze({
-  Entertainment: 0,
-  Economy: 1,
-  Society: 2,
-  Sport: 3,
-  Gossip: 4,
-  Dirt: 5,
-  Politics: 6,
-  Crime: 7,
-  Unrest: 8,
-  Tragic: 9,
-  Hopeful: 10,
-  Triumphant: 11,
-});
+// const Tag = Object.freeze({
+//   Entertainment: 0,
+//   Economy: 1,
+//   Society: 2,
+//   Sport: 3,
+//   Gossip: 4,
+//   Dirt: 5,
+//   Politics: 6,
+//   Crime: 7,
+//   Unrest: 8,
+//   Tragic: 9,
+//   Hopeful: 10,
+//   Triumphant: 11,
+//   Gruesome: 12,
+//   Educational: 13,
+//   OldNews: 14,
+// });
 
 const news = reactive([], render);
 const pages = reactive([], renderPages);
@@ -53,22 +57,22 @@ function renderItem(newsItem) {
   const template = document.getElementById("news-template");
   const clone = template.content.cloneNode(true);
 
-  Object.entries(Tag).forEach(([name, id]) => {
+  Object.entries(Tag).forEach(([, tag]) => {
     const btn = document.createElement("button");
     const img = document.createElement("img");
-    img.src = `../img/tags/${id}.png`;
-    img.alt = name;
+    img.src = `../img/tags/${tag.id}.png`;
+    img.alt = tag.name;
     btn.appendChild(img);
     clone.appendChild(btn);
     btn.onclick = () => {
-      if (newsItem.tags.includes(id)) {
-        newsItem.removeTag(id);
+      if (newsItem.tags.includes(tag)) {
+        newsItem.removeTag(tag);
       } else {
-        newsItem.addTag(id);
+        newsItem.addTag(tag);
       }
       render();
     };
-    if (!newsItem.tags.includes(id)) {
+    if (!newsItem.tags.includes(tag)) {
       btn.classList.add("tag-inactive");
     }
   });
@@ -79,18 +83,18 @@ function renderHotItem() {
   const template = document.getElementById("news-template");
   const clone = template.content.cloneNode(true);
 
-  Object.entries(Tag).forEach(([name, id]) => {
+  Object.entries(Tag).forEach(([, tag]) => {
     const btn = document.createElement("button");
     const img = document.createElement("img");
-    img.src = `../img/tags/${id}.png`;
-    img.alt = name;
+    img.src = `../img/tags/${tag.id}.png`;
+    img.alt = tag.name;
     btn.appendChild(img);
     clone.appendChild(btn);
     btn.onclick = () => {
-      hotTopic = id;
+      hotTopic = tag;
       render();
     };
-    if (hotTopic !== id) {
+    if (hotTopic !== tag) {
       btn.classList.add("tag-inactive");
     }
   });
@@ -112,11 +116,10 @@ function solve() {
   function renderNews(news, id) {
     let clone = template.content.cloneNode(true);
     const tags = news.tags;
-    tags.forEach((id) => {
-      const name = Object.keys(Tag).find(key => Tag[key] === id);
+    tags.forEach((tag) => {
       const img = document.createElement("img");
-      img.src = `../img/tags/${id}.png`;
-      img.alt = name;
+      img.src = `../img/tags/${tag.id}.png`;
+      img.alt = tag.name;
       clone.appendChild(img);
     });
     document.getElementById(id).appendChild(clone);
