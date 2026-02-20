@@ -3,30 +3,47 @@ import {Layout} from "./layout.js";
 export class Solver {
   maxPoints;
   maxLayout;
-  constructor(newsItems) {
+  constructor(newsItems, numOfPages) {
     this.newsItems = newsItems;
     this.maxPoints = 0;
+    this.numOfPages = numOfPages;
   }
 
   solve() {
-    for (let i = 0; i < this.newsItems.length; i++) {
-      for (let j = 0; j < this.newsItems.length; j++) {
-        if (j === i) {
-          continue;
-        }
-        for (let k = 0; k < this.newsItems.length; k++) {
-          if (k === j || k === i) {
-            continue;
-          }
-          console.log(i, j, k);
-          const layout = new Layout(this.newsItems[i], this.newsItems[j], this.newsItems[k]);
-          let points = layout.points;
-          if (points > this.maxPoints) {
-            this.maxPoints = points;
-            this.maxLayout = layout;
-          }
-        }
+    const permutations = this.getPermutations(this.newsItems, this.numOfPages * 3);
+    for (let i = 0; i < permutations.length; i++) {
+      const layout = new Layout(permutations[i]);
+      const points = layout.points;
+      if (points > this.maxPoints) {
+        this.maxPoints = points;
+        this.maxLayout = layout;
       }
     }
+  }
+
+  getPermutations(arr, k) {
+    const result = [];
+
+    function backtrack(path, used) {
+      if (path.length === k) {
+        result.push([...path]);
+        return;
+      }
+
+      for (let i = 0; i < arr.length; i++) {
+        if (used[i]) continue;
+
+        used[i] = true;
+        path.push(arr[i]);
+
+        backtrack(path, used);
+
+        path.pop();
+        used[i] = false;
+      }
+    }
+
+    backtrack([], Array(arr.length).fill(false));
+    return result;
   }
 }
