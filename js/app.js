@@ -10,24 +10,6 @@ document.getElementById("solve").addEventListener("click", solve);
 document.getElementById("addNews").addEventListener("click", addNews);
 document.getElementById("add-page").addEventListener("click", addPage);
 
-// const Tag = Object.freeze({
-//   Entertainment: 0,
-//   Economy: 1,
-//   Society: 2,
-//   Sport: 3,
-//   Gossip: 4,
-//   Dirt: 5,
-//   Politics: 6,
-//   Crime: 7,
-//   Unrest: 8,
-//   Tragic: 9,
-//   Hopeful: 10,
-//   Triumphant: 11,
-//   Gruesome: 12,
-//   Educational: 13,
-//   OldNews: 14,
-// });
-
 const news = reactive([], render);
 const pages = reactive([], renderPages);
 let hotTopic = null;
@@ -48,14 +30,31 @@ function reactive(arr, onChange) {
 
 function render() {
   newsContainer.innerHTML = "";
-  news.forEach(newsItem => newsContainer.appendChild(renderItem(newsItem)));
+  news.forEach((newsItem, i) => newsContainer.appendChild(renderItem(newsItem, i)));
   hotContainer.innerHTML = "";
   hotContainer.appendChild(renderHotItem(new News()));
 }
 
-function renderItem(newsItem) {
+function renderItem(newsItem, index) {
   const template = document.getElementById("news-template");
   const clone = template.content.cloneNode(true);
+  const card = clone.querySelector(".news-item");
+
+  card.draggable = true;
+  card.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("newsIndex", index);
+  });
+
+  if (newsItem.pinnedSlot) {
+    const pinLabel = document.createElement("span");
+    pinLabel.className = "pin-label";
+    pinLabel.textContent = `📌 Page ${newsItem.pinnedSlot.page + 1} · ${newsItem.pinnedSlot.slot}`;
+    const unpin = document.createElement("button");
+    unpin.textContent = "✕";
+    unpin.onclick = () => { newsItem.unpin(); render(); };
+    pinLabel.appendChild(unpin);
+    card.prepend(pinLabel);
+  }
 
   Object.entries(Tag).forEach(([, tag]) => {
     const btn = document.createElement("button");
@@ -142,15 +141,41 @@ function renderPages() {
   for (let i = 0; i < pages.length; i++) {
     pagesContainer.appendChild(renderPage(i));
   }
-  // pages.forEach(page => pagesContainer.appendChild(renderPage(page)));
 }
 
-function renderPage(id) {
+function renderPage(pageIndex) {
   const template = document.getElementById("page-template");
   const clone = template.content.cloneNode(true);
-  clone.querySelector(".main-slot").id = "s" + (id * 3);
-  clone.querySelector(".b1").id = "s" + (id * 3 + 1);
-  clone.querySelector(".b2").id = "s" + (id * 3 + 2);
+
+  const slotMap = {
+    '.main-slot': 'mSlot',
+    '.b1': 'sSlot',
+    '.b2': 'tSlot',
+  };
+
+  Object.entries(slotMap).forEach(([selector, slotName]) => {
+    const el = clone.querySelector(selector);
+    el.id = `s${pageIndex * 3 + Object.keys(slotMap).indexOf(selector)}`;
+
+    el.addEventListener("dragover", (e) => e.preventDefault());
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const newsIndex = parseInt(e.dataTransfer.getData("newsIndex"));
+      news.forEach(n => {
+        if (n.pinnedSlot?.page === pageIndex && n.pinnedSlot?.slot === slotName) {
+          n.unpin();
+        }
+      });
+      news[newsIndex].pin(pageIndex, slotName);
+      render();
+      renderPages();
+    });
+  });
 
   return clone;
+  // clone.querySelector(".main-slot").id = "s" + (id * 3);
+  // clone.querySelector(".b1").id = "s" + (id * 3 + 1);
+  // clone.querySelector(".b2").id = "s" + (id * 3 + 2);
+  //
+  // return clone;
 }

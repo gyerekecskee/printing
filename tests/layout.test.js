@@ -33,3 +33,17 @@ test('10000', () => {
   expect(points).toBe(10000);
 });
 
+test('20000', () => {
+  const news = new News([Tag.POLITICS, Tag.UNREST, Tag.SOCIETY, Tag.TRAGIC]);
+
+  const points = news.doublePoints();
+  expect(points).toBe(20000);
+});
+
+test('doublePoints', () => {
+  const news = new News([Tag.ENTERTAINMENT]);
+
+  const points = news.doublePoints(Tag.ENTERTAINMENT);
+  expect(points).toBe(10000);
+});
+
